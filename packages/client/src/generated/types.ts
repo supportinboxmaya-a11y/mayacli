@@ -2288,6 +2288,290 @@ export type CredentialsRemoveInput = {
 
 export type CredentialsRemoveOutput = void
 
+export type OmniRouterConfigInput = {
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type OmniRouterConfigOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly enabled: boolean
+    readonly baseURL: string
+    readonly strategy: "round-robin" | "lowest-usage"
+  }
+}
+
+export type OmniRouterSetConfigInput = {
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+  readonly enabled?: {
+    readonly enabled?: boolean | undefined
+    readonly baseURL?: string | undefined
+    readonly strategy?: ("round-robin" | "lowest-usage") | undefined
+  }["enabled"]
+  readonly baseURL?: {
+    readonly enabled?: boolean | undefined
+    readonly baseURL?: string | undefined
+    readonly strategy?: ("round-robin" | "lowest-usage") | undefined
+  }["baseURL"]
+  readonly strategy?: {
+    readonly enabled?: boolean | undefined
+    readonly baseURL?: string | undefined
+    readonly strategy?: ("round-robin" | "lowest-usage") | undefined
+  }["strategy"]
+}
+
+export type OmniRouterSetConfigOutput = void
+
+export type OmniRouterListInput = {
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type OmniRouterListOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: ReadonlyArray<{
+    readonly id: string
+    readonly label: string
+    readonly created: number | "Infinity" | "-Infinity" | "NaN"
+    readonly lastUsed?: number | "Infinity" | "-Infinity" | "NaN"
+    readonly enabled: boolean
+    readonly usage: { readonly requests: number; readonly inputTokens: number; readonly outputTokens: number }
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+    readonly status: { readonly phase: "active" | "exhausted" | "disabled" | "error"; readonly message?: string }
+  }>
+}
+
+export type OmniRouterGetInput = {
+  readonly keyID: { readonly keyID: string }["keyID"]
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type OmniRouterGetOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly id: string
+    readonly label: string
+    readonly created: number | "Infinity" | "-Infinity" | "NaN"
+    readonly lastUsed?: number | "Infinity" | "-Infinity" | "NaN"
+    readonly enabled: boolean
+    readonly usage: { readonly requests: number; readonly inputTokens: number; readonly outputTokens: number }
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+    readonly status: { readonly phase: "active" | "exhausted" | "disabled" | "error"; readonly message?: string }
+  } | null
+}
+
+export type OmniRouterAddInput = {
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+  readonly key: {
+    readonly key: string
+    readonly label?: string | null
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+  }["key"]
+  readonly label?: {
+    readonly key: string
+    readonly label?: string | null
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+  }["label"]
+  readonly limit?: {
+    readonly key: string
+    readonly label?: string | null
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+  }["limit"]
+}
+
+export type OmniRouterAddOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly id: string
+    readonly label: string
+    readonly created: number | "Infinity" | "-Infinity" | "NaN"
+    readonly lastUsed?: number | "Infinity" | "-Infinity" | "NaN"
+    readonly enabled: boolean
+    readonly usage: { readonly requests: number; readonly inputTokens: number; readonly outputTokens: number }
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+    readonly status: { readonly phase: "active" | "exhausted" | "disabled" | "error"; readonly message?: string }
+  }
+}
+
+export type OmniRouterUpdateInput = {
+  readonly keyID: { readonly keyID: string }["keyID"]
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+  readonly label?: {
+    readonly label?: string | null
+    readonly enabled?: boolean | null
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+  }["label"]
+  readonly enabled?: {
+    readonly label?: string | null
+    readonly enabled?: boolean | null
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+  }["enabled"]
+  readonly limit?: {
+    readonly label?: string | null
+    readonly enabled?: boolean | null
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+  }["limit"]
+}
+
+export type OmniRouterUpdateOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly id: string
+    readonly label: string
+    readonly created: number | "Infinity" | "-Infinity" | "NaN"
+    readonly lastUsed?: number | "Infinity" | "-Infinity" | "NaN"
+    readonly enabled: boolean
+    readonly usage: { readonly requests: number; readonly inputTokens: number; readonly outputTokens: number }
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+    readonly status: { readonly phase: "active" | "exhausted" | "disabled" | "error"; readonly message?: string }
+  } | null
+}
+
+export type OmniRouterRemoveInput = {
+  readonly keyID: { readonly keyID: string }["keyID"]
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type OmniRouterRemoveOutput = void
+
+export type OmniRouterRotateInput = {
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type OmniRouterRotateOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly id: string
+    readonly label: string
+    readonly created: number | "Infinity" | "-Infinity" | "NaN"
+    readonly lastUsed?: number | "Infinity" | "-Infinity" | "NaN"
+    readonly enabled: boolean
+    readonly usage: { readonly requests: number; readonly inputTokens: number; readonly outputTokens: number }
+    readonly limit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+    readonly status: { readonly phase: "active" | "exhausted" | "disabled" | "error"; readonly message?: string }
+  } | null
+}
+
+export type OmniRouterResetUsageInput = {
+  readonly keyID: { readonly keyID: string }["keyID"]
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type OmniRouterResetUsageOutput = void
+
+export type OmniRouterStatsInput = {
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type OmniRouterStatsOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly keys: ReadonlyArray<{
+      readonly id: string
+      readonly label: string
+      readonly created: number | "Infinity" | "-Infinity" | "NaN"
+      readonly lastUsed?: number | "Infinity" | "-Infinity" | "NaN"
+      readonly enabled: boolean
+      readonly usage: { readonly requests: number; readonly inputTokens: number; readonly outputTokens: number }
+      readonly limit?: {
+        readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+        readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+      }
+      readonly status: { readonly phase: "active" | "exhausted" | "disabled" | "error"; readonly message?: string }
+    }>
+    readonly total: { readonly requests: number; readonly inputTokens: number; readonly outputTokens: number }
+    readonly activeKeys: number | "Infinity" | "-Infinity" | "NaN"
+    readonly exhaustedKeys: number | "Infinity" | "-Infinity" | "NaN"
+    readonly totalLimit?: {
+      readonly requests?: number | "Infinity" | "-Infinity" | "NaN" | null
+      readonly tokens?: number | "Infinity" | "-Infinity" | "NaN" | null
+    }
+    readonly currentKeyID?: string
+    readonly strategy: "round-robin" | "lowest-usage"
+    readonly updated: number | "Infinity" | "-Infinity" | "NaN"
+  }
+}
+
 export type PermissionsListRequestsInput = {
   readonly location?: {
     readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined

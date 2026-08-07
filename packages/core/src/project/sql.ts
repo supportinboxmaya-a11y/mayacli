@@ -2,6 +2,7 @@ import { sqliteTable, text, integer, primaryKey } from "drizzle-orm/sqlite-core"
 import * as DatabasePath from "../database/path"
 import { Timestamps } from "../database/schema.sql"
 import { ProjectSchema } from "./schema"
+import type { User } from "../user"
 
 export const ProjectTable = sqliteTable("project", {
   id: text().$type<ProjectSchema.ID>().primaryKey(),
@@ -11,6 +12,7 @@ export const ProjectTable = sqliteTable("project", {
   icon_url: text(),
   icon_url_override: text(),
   icon_color: text(),
+  user_id: text().$type<User.ID | null>(),
   ...Timestamps,
   time_initialized: integer(),
   sandboxes: DatabasePath.absoluteArrayColumn().notNull(),

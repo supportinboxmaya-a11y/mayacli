@@ -65,10 +65,49 @@ export default {
           \`connector_id\` text,
           \`method_id\` text,
           \`active\` integer,
+          \`user_id\` text,
           \`time_created\` integer NOT NULL,
           \`time_updated\` integer NOT NULL
         );
       `)
+      yield* tx.run(`
+        CREATE TABLE \`user\` (
+          \`id\` text PRIMARY KEY,
+          \`username\` text NOT NULL,
+          \`email\` text NOT NULL,
+          \`password_hash\` text NOT NULL,
+          \`name\` text,
+          \`avatar\` text,
+          \`settings\` text NOT NULL DEFAULT '{}',
+          \`time_created\` integer NOT NULL,
+          \`time_updated\` integer NOT NULL
+        );
+      `)
+      yield* tx.run(`CREATE UNIQUE INDEX \`user_username_unique_idx\` ON \`user\` (\`username\`);`)
+      yield* tx.run(`CREATE UNIQUE INDEX \`user_email_unique_idx\` ON \`user\` (\`email\`);`)
+      yield* tx.run(`
+        CREATE TABLE \`user_session\` (
+          \`id\` text PRIMARY KEY,
+          \`user_id\` text NOT NULL,
+          \`token_hash\` text NOT NULL,
+          \`expires\` integer NOT NULL,
+          \`created\` integer NOT NULL,
+          \`last_used\` integer,
+          CONSTRAINT \`fk_user_session_user_id_user_id_fk\` FOREIGN KEY (\`user_id\`) REFERENCES \`user\`(\`id\`) ON DELETE CASCADE
+        );
+      `)
+      yield* tx.run(`CREATE INDEX \`user_session_user_id_idx\` ON \`user_session\` (\`user_id\`);`)
+      yield* tx.run(`
+        CREATE TABLE \`password_reset\` (
+          \`id\` text PRIMARY KEY,
+          \`user_id\` text NOT NULL,
+          \`token_hash\` text NOT NULL,
+          \`expires\` integer NOT NULL,
+          \`created\` integer NOT NULL,
+          CONSTRAINT \`fk_password_reset_user_id_user_id_fk\` FOREIGN KEY (\`user_id\`) REFERENCES \`user\`(\`id\`) ON DELETE CASCADE
+        );
+      `)
+      yield* tx.run(`CREATE INDEX \`password_reset_user_id_idx\` ON \`password_reset\` (\`user_id\`);`)
       yield* tx.run(`
         CREATE TABLE \`event_sequence\` (
           \`aggregate_id\` text PRIMARY KEY,
@@ -117,6 +156,7 @@ export default {
           \`icon_url\` text,
           \`icon_url_override\` text,
           \`icon_color\` text,
+          \`user_id\` text,
           \`time_created\` integer NOT NULL,
           \`time_updated\` integer NOT NULL,
           \`time_initialized\` integer,

@@ -101,6 +101,36 @@ export class ForbiddenError extends Schema.TaggedErrorClass<ForbiddenError>()(
   { httpApiStatus: 403 },
 ) {}
 
+export class TooManyRequestsError extends Schema.TaggedErrorClass<TooManyRequestsError>()(
+  "TooManyRequestsError",
+  { message: Schema.String },
+  { httpApiStatus: 429 },
+) {}
+
+export class UsernameTakenError extends Schema.TaggedErrorClass<UsernameTakenError>()(
+  "User.UsernameTaken",
+  { username: Schema.String },
+  { httpApiStatus: 409 },
+) {}
+
+export class EmailTakenError extends Schema.TaggedErrorClass<EmailTakenError>()(
+  "User.EmailTaken",
+  { email: Schema.String },
+  { httpApiStatus: 409 },
+) {}
+
+export class InvalidCredentialsError extends Schema.TaggedErrorClass<InvalidCredentialsError>()(
+  "User.InvalidCredentials",
+  { message: Schema.String },
+  { httpApiStatus: 401 },
+) {}
+
+export class InvalidResetTokenError extends Schema.TaggedErrorClass<InvalidResetTokenError>()(
+  "User.InvalidResetToken",
+  { message: Schema.String },
+  { httpApiStatus: 401 },
+) {}
+
 export class PtyNotFoundError extends Schema.TaggedErrorClass<PtyNotFoundError>()(
   "PtyNotFoundError",
   {

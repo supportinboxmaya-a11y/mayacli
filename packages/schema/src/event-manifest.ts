@@ -11,6 +11,7 @@ import { LegacyEvent } from "./legacy-event"
 import { LspEvent } from "./lsp-event"
 import { McpEvent } from "./mcp-event"
 import { ModelsDev } from "./models-dev"
+import { OmniRouter } from "./omni-router"
 import { Permission } from "./permission"
 import { PermissionV1 } from "./permission-v1"
 import { Plugin } from "./plugin"
@@ -54,9 +55,14 @@ const featureDefinitions = Event.inventory(
   ...Question.Event.Definitions,
 )
 
+const gatewayDefinitions = Event.inventory(
+  ...OmniRouter.EventDefinitions,
+)
+
 export const ServerDefinitions = Event.inventory(
   ...foundationDefinitions,
   ...featureDefinitions,
+  ...gatewayDefinitions,
   ...SessionTodo.Event.Definitions,
 )
 

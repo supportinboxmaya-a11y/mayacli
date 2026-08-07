@@ -50,7 +50,10 @@ import { Truncate } from "@/tool/truncate"
 import { Worktree } from "@/worktree"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { MoveSession } from "@opencode-ai/core/control-plane/move-session"
+import { Credential } from "@opencode-ai/core/credential"
 import { Database } from "@opencode-ai/core/database/database"
+import { OmniRouter } from "@opencode-ai/core/omni-router"
+import { User } from "@opencode-ai/core/user"
 import { AppNodeBuilderV1 } from "@/effect/app-node-builder-v1"
 import { LayerNode } from "@opencode-ai/core/effect/layer-node"
 import { httpClient } from "@opencode-ai/core/effect/app-node-platform"
@@ -105,6 +108,8 @@ import { layer as locationLayer } from "@opencode-ai/server/location"
 import { sessionLocationLayer } from "@opencode-ai/server/middleware/session-location"
 import { PtyEnvironment } from "@opencode-ai/server/pty-environment"
 import { schemaErrorLayer as v2SchemaErrorLayer } from "@opencode-ai/server/middleware/schema-error"
+import { rateLimitLayer } from "@opencode-ai/server/middleware/rate-limit"
+import { userAuthLayer } from "@opencode-ai/server/middleware/user-auth"
 import { workspaceHandlers } from "./handlers/workspace"
 import { instanceContextLayer } from "./middleware/instance-context"
 import { workspaceRoutingLayer } from "./middleware/workspace-routing"
@@ -178,6 +183,8 @@ const serverRoutes = HttpApiBuilder.layer(Api).pipe(
   Layer.provide(handlers),
   Layer.provide(PluginPtyEnvironment.layer),
   Layer.provide([serverHttpApiAuthLayer, v2SchemaErrorLayer]),
+  Layer.provide(userAuthLayer),
+  Layer.provide(rateLimitLayer()),
 )
 
 // `OpenApi.fromApi` is non-trivial; defer until /doc is actually hit so
@@ -263,6 +270,9 @@ const app = LayerNode.group([
   InstanceStore.node,
   httpClient,
   EventV2.node,
+  Credential.node,
+  OmniRouter.node,
+  User.node,
   ProjectV2.node,
   ProjectCopy.node,
   PtyTicket.node,

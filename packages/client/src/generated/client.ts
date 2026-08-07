@@ -63,6 +63,26 @@ import type {
   CredentialsUpdateOutput,
   CredentialsRemoveInput,
   CredentialsRemoveOutput,
+  OmniRouterConfigInput,
+  OmniRouterConfigOutput,
+  OmniRouterSetConfigInput,
+  OmniRouterSetConfigOutput,
+  OmniRouterListInput,
+  OmniRouterListOutput,
+  OmniRouterGetInput,
+  OmniRouterGetOutput,
+  OmniRouterAddInput,
+  OmniRouterAddOutput,
+  OmniRouterUpdateInput,
+  OmniRouterUpdateOutput,
+  OmniRouterRemoveInput,
+  OmniRouterRemoveOutput,
+  OmniRouterRotateInput,
+  OmniRouterRotateOutput,
+  OmniRouterResetUsageInput,
+  OmniRouterResetUsageOutput,
+  OmniRouterStatsInput,
+  OmniRouterStatsOutput,
   PermissionsListRequestsInput,
   PermissionsListRequestsOutput,
   PermissionsListSavedInput,
@@ -659,6 +679,132 @@ export function make(options: ClientOptions) {
             successStatus: 204,
             declaredStatuses: [401, 400],
             empty: true,
+          },
+          requestOptions,
+        ),
+    },
+    omniRouter: {
+      config: (input?: OmniRouterConfigInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterConfigOutput>(
+          {
+            method: "GET",
+            path: `/api/omni-router/config`,
+            query: { location: input?.["location"] },
+            successStatus: 200,
+            declaredStatuses: [401, 400],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      setConfig: (input?: OmniRouterSetConfigInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterSetConfigOutput>(
+          {
+            method: "PATCH",
+            path: `/api/omni-router/config`,
+            query: { location: input?.["location"] },
+            body: { enabled: input?.["enabled"], baseURL: input?.["baseURL"], strategy: input?.["strategy"] },
+            successStatus: 204,
+            declaredStatuses: [401, 400],
+            empty: true,
+          },
+          requestOptions,
+        ),
+      list: (input?: OmniRouterListInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterListOutput>(
+          {
+            method: "GET",
+            path: `/api/omni-router/key`,
+            query: { location: input?.["location"] },
+            successStatus: 200,
+            declaredStatuses: [401, 400],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      get: (input: OmniRouterGetInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterGetOutput>(
+          {
+            method: "GET",
+            path: `/api/omni-router/key/${encodeURIComponent(input.keyID)}`,
+            query: { location: input["location"] },
+            successStatus: 200,
+            declaredStatuses: [401, 400],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      add: (input: OmniRouterAddInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterAddOutput>(
+          {
+            method: "POST",
+            path: `/api/omni-router/key`,
+            query: { location: input["location"] },
+            body: { key: input["key"], label: input["label"], limit: input["limit"] },
+            successStatus: 200,
+            declaredStatuses: [401, 400],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      update: (input: OmniRouterUpdateInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterUpdateOutput>(
+          {
+            method: "PATCH",
+            path: `/api/omni-router/key/${encodeURIComponent(input.keyID)}`,
+            query: { location: input["location"] },
+            body: { label: input["label"], enabled: input["enabled"], limit: input["limit"] },
+            successStatus: 200,
+            declaredStatuses: [401, 400],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      remove: (input: OmniRouterRemoveInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterRemoveOutput>(
+          {
+            method: "DELETE",
+            path: `/api/omni-router/key/${encodeURIComponent(input.keyID)}`,
+            query: { location: input["location"] },
+            successStatus: 204,
+            declaredStatuses: [401, 400],
+            empty: true,
+          },
+          requestOptions,
+        ),
+      rotate: (input?: OmniRouterRotateInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterRotateOutput>(
+          {
+            method: "POST",
+            path: `/api/omni-router/rotate`,
+            query: { location: input?.["location"] },
+            body: undefined,
+            successStatus: 200,
+            declaredStatuses: [401, 400],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      resetUsage: (input: OmniRouterResetUsageInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterResetUsageOutput>(
+          {
+            method: "POST",
+            path: `/api/omni-router/key/${encodeURIComponent(input.keyID)}/reset-usage`,
+            query: { location: input["location"] },
+            successStatus: 204,
+            declaredStatuses: [401, 400],
+            empty: true,
+          },
+          requestOptions,
+        ),
+      stats: (input?: OmniRouterStatsInput, requestOptions?: RequestOptions) =>
+        request<OmniRouterStatsOutput>(
+          {
+            method: "GET",
+            path: `/api/omni-router/stats`,
+            query: { location: input?.["location"] },
+            successStatus: 200,
+            declaredStatuses: [401, 400],
+            empty: false,
           },
           requestOptions,
         ),

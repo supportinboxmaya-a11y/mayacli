@@ -4,7 +4,9 @@ import { Location } from "@opencode-ai/core/location"
 import { AbsolutePath } from "@opencode-ai/core/schema"
 import { SessionV2 } from "@opencode-ai/core/session"
 import { SessionTable } from "@opencode-ai/core/session/sql"
+import { ProjectTable } from "@opencode-ai/core/project/sql"
 import { WorkspaceV2 } from "@opencode-ai/core/workspace"
+import { CurrentUser } from "@opencode-ai/protocol/middleware/user-auth"
 import { eq } from "drizzle-orm"
 import { Effect, Layer, Schema } from "effect"
 import { HttpRouter } from "effect/unstable/http"
@@ -40,7 +42,11 @@ export const sessionLocationLayer = Layer.effect(
           ),
         )
         const row = yield* db
-          .select({ directory: SessionTable.directory, workspaceID: SessionTable.workspace_id })
+          .select({
+            directory: SessionTable.directory,
+            workspaceID: SessionTable.workspace_id,
+            projectID: SessionTable.project_id,
+          })
           .from(SessionTable)
           .where(eq(SessionTable.id, sessionID))
           .get()
@@ -50,6 +56,25 @@ export const sessionLocationLayer = Layer.effect(
             sessionID,
             message: `Session not found: ${sessionID}`,
           })
+
+        // Per-user isolation: when a request is authenticated, the session
+        // must belong to the authenticated user's project tree. Unauthenticated
+        // requests are treated as the legacy single-user path.
+        const user = yield* CurrentUser
+        if (user) {
+          const project = yield* db
+            .select({ userId: ProjectTable.user_id })
+            .from(ProjectTable)
+            .where(eq(ProjectTable.id, row.projectID))
+            .get()
+            .pipe(Effect.orDie)
+          if (project?.userId && project.userId !== user.id) {
+            return yield* new SessionNotFoundError({
+              sessionID,
+              message: `Session not found: ${sessionID}`,
+            })
+          }
+        }
 
         return yield* effect.pipe(
           Effect.provide(

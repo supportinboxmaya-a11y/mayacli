@@ -11,6 +11,8 @@ import { SessionExecution } from "@opencode-ai/core/session/execution"
 import { LocationServiceMap } from "@opencode-ai/core/location-service-map"
 import { SessionExecutionLocal } from "@opencode-ai/core/session/execution/local"
 import { ToolOutputStore } from "@opencode-ai/core/tool-output-store"
+import { OmniRouter } from "@opencode-ai/core/omni-router"
+import { User } from "@opencode-ai/core/user"
 import { HttpRouter, HttpServer } from "effect/unstable/http"
 import { HttpApiBuilder } from "effect/unstable/httpapi"
 import { Layer, Option } from "effect"
@@ -19,6 +21,8 @@ import { ServerAuth } from "./auth"
 import { handlers } from "./handlers"
 import { authorizationLayer } from "./middleware/authorization"
 import { schemaErrorLayer } from "./middleware/schema-error"
+import { userAuthLayer } from "./middleware/user-auth"
+import { rateLimitLayer } from "./middleware/rate-limit"
 import { PtyEnvironment } from "./pty-environment"
 import { layer as locationLayer } from "./location"
 import { sessionLocationLayer } from "./middleware/session-location"
@@ -32,6 +36,8 @@ const applicationServices = LayerNode.group([
   PermissionSaved.node,
   PtyTicket.node,
   Credential.node,
+  OmniRouter.node,
+  User.node,
   PtyEnvironment.node,
   LocationServiceMap.node,
 ])
@@ -56,6 +62,8 @@ function makeRoutes<AuthError, AuthServices>(auth: Layer.Layer<ServerAuth.Config
     Layer.provide(sessionLocationLayer),
     Layer.provide(locationLayer),
     Layer.provide(authorizationLayer),
+    Layer.provide(userAuthLayer),
+    Layer.provide(rateLimitLayer()),
     Layer.provide(schemaErrorLayer),
     Layer.provide(auth),
     Layer.provide(serviceLayer),

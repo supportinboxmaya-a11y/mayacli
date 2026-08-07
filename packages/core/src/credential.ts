@@ -1,9 +1,10 @@
 export * as Credential from "./credential"
 
-import { asc, eq } from "drizzle-orm"
+import { and, asc, eq } from "drizzle-orm"
 import { Context, Effect, Layer, Schema } from "effect"
 import { Credential } from "@opencode-ai/schema/credential"
 import { Integration } from "@opencode-ai/schema/integration"
+import { User } from "@opencode-ai/schema/user"
 import { Database } from "./database/database"
 import { makeGlobalNode } from "./effect/app-node"
 import { CredentialTable } from "./credential/sql"
@@ -28,10 +29,10 @@ export class Info extends Schema.Class<Info>("Credential.Info")({
 }) {}
 
 export interface Interface {
-  /** Returns every stored credential. */
-  readonly all: () => Effect.Effect<Info[]>
-  /** Returns stored credentials belonging to one integration. */
-  readonly list: (integrationID: Integration.ID) => Effect.Effect<Info[]>
+  /** Returns every stored credential (optionally scoped to a user). */
+  readonly all: (userID?: User.ID) => Effect.Effect<Info[]>
+  /** Returns stored credentials belonging to one integration (optionally scoped to a user). */
+  readonly list: (integrationID: Integration.ID, userID?: User.ID) => Effect.Effect<Info[]>
   /** Returns one stored credential by ID. */
   readonly get: (id: ID) => Effect.Effect<Info | undefined>
   /** Replaces any credential for an integration and returns the new record. */
@@ -39,6 +40,8 @@ export interface Interface {
     readonly integrationID: Integration.ID
     readonly value: Value
     readonly label?: string
+    /** Owner user ID; unset rows are global/legacy. */
+    readonly userID?: User.ID
   }) => Effect.Effect<Info>
   /** Updates the label or secret value of a stored credential. */
   readonly update: (id: ID, updates: Partial<Pick<Info, "label" | "value">>) => Effect.Effect<void>
@@ -64,22 +67,23 @@ const layer = Layer.effect(
     }
 
     return Service.of({
-      all: Effect.fn("Credential.all")(function* () {
-        return (yield* db
-          .select()
-          .from(CredentialTable)
-          .orderBy(asc(CredentialTable.time_created))
-          .all()
-          .pipe(Effect.orDie)).flatMap((row) => {
+      all: Effect.fn("Credential.all")(function* (userID) {
+        return (yield* (userID
+          ? db.select().from(CredentialTable).where(eq(CredentialTable.user_id, userID)).orderBy(asc(CredentialTable.time_created)).all()
+          : db.select().from(CredentialTable).orderBy(asc(CredentialTable.time_created)).all()).pipe(Effect.orDie)).flatMap((row) => {
           const credential = stored(row)
           return credential ? [credential] : []
         })
       }),
-      list: Effect.fn("Credential.list")(function* (integrationID) {
+      list: Effect.fn("Credential.list")(function* (integrationID, userID) {
         return (yield* db
           .select()
           .from(CredentialTable)
-          .where(eq(CredentialTable.integration_id, integrationID))
+          .where(
+            userID
+              ? and(eq(CredentialTable.integration_id, integrationID), eq(CredentialTable.user_id, userID))
+              : eq(CredentialTable.integration_id, integrationID),
+          )
           .orderBy(asc(CredentialTable.time_created))
           .all()
           .pipe(Effect.orDie)).flatMap((row) => {
@@ -98,24 +102,19 @@ const layer = Layer.effect(
           label: input.label ?? "default",
           value: input.value,
         })
+        // Insert alongside any existing credentials for the integration.
+        // The DB schema (post `lush_chimera` migration) supports multiple
+        // credentials per integration; integrations decide which is active.
         yield* db
-          .transaction((tx) =>
-            Effect.gen(function* () {
-              yield* tx
-                .delete(CredentialTable)
-                .where(eq(CredentialTable.integration_id, credential.integrationID))
-                .run()
-              yield* tx
-                .insert(CredentialTable)
-                .values({
-                  id: credential.id,
-                  integration_id: credential.integrationID,
-                  label: credential.label,
-                  value: credential.value,
-                })
-                .run()
-            }),
-          )
+          .insert(CredentialTable)
+          .values({
+            id: credential.id,
+            integration_id: credential.integrationID,
+            label: credential.label,
+            value: credential.value,
+            ...(input.userID !== undefined ? { user_id: input.userID } : {}),
+          })
+          .run()
           .pipe(Effect.orDie)
         return credential
       }),
