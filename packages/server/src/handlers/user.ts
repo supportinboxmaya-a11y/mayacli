@@ -9,16 +9,20 @@ import {
 } from "@opencode-ai/protocol/errors"
 import { Effect } from "effect"
 import { HttpApiBuilder, HttpApiSchema } from "effect/unstable/httpapi"
+import { HttpServerRequest } from "effect/unstable/http"
 import { Api } from "../api"
-import { CurrentUser } from "../middleware/user-auth"
 
 export const UserHandler = HttpApiBuilder.group(Api, "server.user", (handlers) =>
   Effect.gen(function* () {
     const users = yield* User.Service
 
     const requireUser = Effect.gen(function* () {
-      const user = yield* CurrentUser
-      if (!user) return yield* new UnauthorizedError({ message: "Authentication required" })
+      const request = yield* HttpServerRequest.HttpServerRequest
+      const match = /^Bearer\s+(.+)$/i.exec(request.headers.authorization ?? "")
+      const token = match?.[1]
+      if (!token) return yield* new UnauthorizedError({ message: "Authentication required" })
+      const user = yield* users.fromToken(token)
+      if (!user) return yield* new UnauthorizedError({ message: "Invalid or expired session" })
       return user
     })
 
