@@ -2,6 +2,7 @@ import { ServerAuth } from "../auth"
 import { UnauthorizedError } from "@opencode-ai/protocol/errors"
 import { Authorization } from "@opencode-ai/protocol/middleware/authorization"
 export { Authorization } from "@opencode-ai/protocol/middleware/authorization"
+import { User } from "@opencode-ai/core/user"
 import { hasPtyConnectTicketURL } from "@opencode-ai/protocol/groups/pty"
 import { Effect, Encoding, Layer, Redacted } from "effect"
 import { HttpEffect, HttpServerRequest, HttpServerResponse } from "effect/unstable/http"
@@ -40,9 +41,18 @@ export const authorizationLayer = Layer.effect(
   Effect.gen(function* () {
     const config = yield* ServerAuth.Config
     if (!ServerAuth.required(config)) return Authorization.of((effect) => effect)
+    const users = yield* User.Service
     return Authorization.of((effect) =>
       Effect.gen(function* () {
         const request = yield* HttpServerRequest.HttpServerRequest
+        // Requests authenticated by the app's user session (Bearer token) are
+        // allowed through; the user-auth middleware still enforces per-route
+        // authorization. Basic auth remains for legacy/unauthenticated clients.
+        const match = /^Bearer\s+(.+)$/i.exec(request.headers.authorization ?? "")
+        if (match) {
+          const user = yield* users.fromToken(match[1])
+          if (user) return yield* effect
+        }
         // Browsers cannot set headers on WebSocket upgrades, so a ticketed PTY connect skips
         // credential checks here; the connect handler consumes and validates the ticket.
         if (hasPtyConnectTicketURL(new URL(request.url, "http://localhost"))) return yield* effect
