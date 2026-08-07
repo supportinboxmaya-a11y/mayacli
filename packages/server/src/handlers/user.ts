@@ -49,10 +49,15 @@ export const UserHandler = HttpApiBuilder.group(Api, "server.user", (handlers) =
       )
       .handle(
         "user.logout",
-        Effect.fn(function* (ctx) {
-          const user = yield* requireUser
+        Effect.fn(function* (_ctx) {
+          const request = yield* HttpServerRequest.HttpServerRequest
+          const match = /^Bearer\s+(.+)$/i.exec(request.headers.authorization ?? "")
+          const token = match?.[1]
+          if (!token) return yield* new UnauthorizedError({ message: "Authentication required" })
+          const user = yield* users.fromToken(token)
+          if (!user) return yield* new UnauthorizedError({ message: "Invalid or expired session" })
           void user
-          yield* users.logout(ctx.headers.authorization?.replace(/^Bearer\s+/i, "") ?? "")
+          yield* users.logout(token)
           return HttpApiSchema.NoContent.make()
         }),
       )
