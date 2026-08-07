@@ -21,7 +21,7 @@ import { ServerAuth } from "./auth"
 import { handlers } from "./handlers"
 import { authorizationLayer } from "./middleware/authorization"
 import { schemaErrorLayer } from "./middleware/schema-error"
-import { userAuthLayer } from "./middleware/user-auth"
+import { userAuthOptionalLayer } from "./middleware/user-auth"
 import { rateLimitLayer } from "./middleware/rate-limit"
 import { PtyEnvironment } from "./pty-environment"
 import { layer as locationLayer } from "./location"
@@ -62,7 +62,7 @@ function makeRoutes<AuthError, AuthServices>(auth: Layer.Layer<ServerAuth.Config
     Layer.provide(sessionLocationLayer),
     Layer.provide(locationLayer),
     Layer.provide(authorizationLayer),
-    Layer.provide(userAuthLayer),
+    Layer.provide(userAuthOptionalLayer),
     Layer.provide(rateLimitLayer()),
     Layer.provide(schemaErrorLayer),
     Layer.provide(auth),

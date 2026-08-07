@@ -109,7 +109,7 @@ import { sessionLocationLayer } from "@opencode-ai/server/middleware/session-loc
 import { PtyEnvironment } from "@opencode-ai/server/pty-environment"
 import { schemaErrorLayer as v2SchemaErrorLayer } from "@opencode-ai/server/middleware/schema-error"
 import { rateLimitLayer } from "@opencode-ai/server/middleware/rate-limit"
-import { userAuthLayer } from "@opencode-ai/server/middleware/user-auth"
+import { userAuthOptionalLayer } from "@opencode-ai/server/middleware/user-auth"
 import { workspaceHandlers } from "./handlers/workspace"
 import { instanceContextLayer } from "./middleware/instance-context"
 import { workspaceRoutingLayer } from "./middleware/workspace-routing"
@@ -183,7 +183,7 @@ const serverRoutes = HttpApiBuilder.layer(Api).pipe(
   Layer.provide(handlers),
   Layer.provide(PluginPtyEnvironment.layer),
   Layer.provide([serverHttpApiAuthLayer, v2SchemaErrorLayer]),
-  Layer.provide(userAuthLayer),
+  Layer.provide(userAuthOptionalLayer),
   Layer.provide(rateLimitLayer()),
 )
 
