@@ -6,7 +6,7 @@ import { Database } from "./database/database"
 import { Context, Effect, Layer, Schema } from "effect"
 import { makeGlobalNode } from "./effect/app-node"
 import { and, desc, eq } from "drizzle-orm"
-import { randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto"
+import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto"
 import * as SessionError from "./user/errors"
 
 export const ID = User.ID
@@ -76,6 +76,11 @@ function makeToken(): string {
   return randomBytes(32).toString("base64url")
 }
 
+/** Deterministic hash for opaque session tokens (looked up by value). */
+function hashToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex")
+}
+
 const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
@@ -116,7 +121,7 @@ const layer = Layer.effect(
         .values({
           id,
           user_id: userID,
-          token_hash: hashPassword(token),
+          token_hash: hashToken(token),
           expires: Date.now() + SessionDurationMs,
           created: Date.now(),
         })
@@ -222,14 +227,14 @@ const layer = Layer.effect(
         return yield* authResult(row, token)
       }),
       logout: Effect.fn("User.logout")(function* (token) {
-        yield* db.delete(UserSessionTable).where(eq(UserSessionTable.token_hash, hashPassword(token))).run().pipe(Effect.orDie)
+        yield* db.delete(UserSessionTable).where(eq(UserSessionTable.token_hash, hashToken(token))).run().pipe(Effect.orDie)
       }),
       fromToken: Effect.fn("User.fromToken")(function* (token) {
         if (!token) return undefined
         const sessions = yield* db
           .select()
           .from(UserSessionTable)
-          .where(eq(UserSessionTable.token_hash, hashPassword(token)))
+          .where(eq(UserSessionTable.token_hash, hashToken(token)))
           .all()
           .pipe(Effect.orDie)
         const session = sessions.find((s) => s.expires > Date.now())
@@ -254,7 +259,7 @@ const layer = Layer.effect(
           .values({
             id: SessionID.create(),
             user_id: row.id,
-            token_hash: hashPassword(token),
+            token_hash: hashToken(token),
             expires: Date.now() + ResetDurationMs,
             created: Date.now(),
           })
@@ -266,7 +271,7 @@ const layer = Layer.effect(
         const rows = yield* db
           .select()
           .from(PasswordResetTable)
-          .where(eq(PasswordResetTable.token_hash, hashPassword(input.token)))
+          .where(eq(PasswordResetTable.token_hash, hashToken(input.token)))
           .all()
           .pipe(Effect.orDie)
         const reset = rows.find((r) => r.expires > Date.now())
