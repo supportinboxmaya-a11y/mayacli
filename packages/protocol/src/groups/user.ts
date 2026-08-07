@@ -10,7 +10,6 @@ import {
   UnauthorizedError,
   UsernameTakenError,
 } from "../errors"
-import { UserAuth } from "../middleware/user-auth"
 import { RateLimit } from "../middleware/rate-limit"
 
 export const UserGroup = HttpApiGroup.make("server.user")
@@ -49,7 +48,6 @@ export const UserGroup = HttpApiGroup.make("server.user")
       payload: Schema.Struct({}),
       success: HttpApiSchema.NoContent,
     })
-      .middleware(UserAuth)
       .annotateMerge(
         OpenApi.annotations({
           identifier: "v2.user.logout",
@@ -93,7 +91,6 @@ export const UserGroup = HttpApiGroup.make("server.user")
       success: User.Info,
       error: UnauthorizedError,
     })
-      .middleware(UserAuth)
       .annotateMerge(
         OpenApi.annotations({
           identifier: "v2.user.me",
@@ -108,7 +105,6 @@ export const UserGroup = HttpApiGroup.make("server.user")
       success: User.Info,
       error: UnauthorizedError,
     })
-      .middleware(UserAuth)
       .annotateMerge(
         OpenApi.annotations({
           identifier: "v2.user.profile",
@@ -123,7 +119,6 @@ export const UserGroup = HttpApiGroup.make("server.user")
       success: User.Info,
       error: UnauthorizedError,
     })
-      .middleware(UserAuth)
       .annotateMerge(
         OpenApi.annotations({
           identifier: "v2.user.settings",
@@ -138,7 +133,6 @@ export const UserGroup = HttpApiGroup.make("server.user")
       success: HttpApiSchema.NoContent,
       error: Schema.Union([UnauthorizedError, ForbiddenError]),
     })
-      .middleware(UserAuth)
       .annotateMerge(
         OpenApi.annotations({
           identifier: "v2.user.password",
