@@ -1,5 +1,6 @@
 import { NodeHttpServer, NodeServices } from "@effect/platform-node"
 import { Flag } from "@opencode-ai/core/flag/flag"
+import { isAllowedCorsOrigin } from "@opencode-ai/server/cors"
 import { describe, expect } from "bun:test"
 import { Config, ConfigProvider, Effect, Layer } from "effect"
 import { HttpClient, HttpClientRequest, HttpRouter, HttpServer } from "effect/unstable/http"
@@ -119,4 +120,17 @@ describe("HttpApi CORS", () => {
       expect(rejected.headers.get("access-control-allow-origin")).not.toBe("https://evil.example")
     }),
   )
+
+  it("allows only the exact Maya Vercel origin, not arbitrary vercel.app subdomains", () => {
+    // The Maya frontend is deployed at https://maya-ui-jet.vercel.app.
+    expect(isAllowedCorsOrigin("https://maya-ui-jet.vercel.app")).toBe(true)
+    // A different vercel.app subdomain must NOT be allowed.
+    expect(isAllowedCorsOrigin("https://evil-vercel.app")).toBe(false)
+    expect(isAllowedCorsOrigin("https://maya-ui-jet.vercel.app.evil.example")).toBe(false)
+    // Existing allowlisted origins still pass.
+    expect(isAllowedCorsOrigin("https://app.opencode.ai")).toBe(true)
+    expect(isAllowedCorsOrigin("http://localhost:3000")).toBe(true)
+    // Configured custom origins still pass.
+    expect(isAllowedCorsOrigin("https://custom.example", { cors: ["https://custom.example"] })).toBe(true)
+  })
 })
