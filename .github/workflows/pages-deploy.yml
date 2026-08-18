@@ -23,6 +23,7 @@ jobs:
         run: bun run build
         env:
           VITE_API_URL: https://api.dev.opencode.ai
+          VITE_BACKEND_URL: https://buggumaya.duckdns.org
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

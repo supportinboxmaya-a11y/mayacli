@@ -2,6 +2,7 @@ import { Context } from "effect"
 
 const opencodeOrigin = /^https:\/\/([a-z0-9-]+\.)*opencode\.ai$/
 const mayaUiOrigin = "https://maya-ui-jet.vercel.app"
+const mayaUiPagesOrigin = "https://maya-ui-2i5.pages.dev"
 
 export type CorsOptions = { readonly cors?: ReadonlyArray<string> }
 
@@ -18,6 +19,7 @@ export function isAllowedCorsOrigin(input: string | undefined, opts?: CorsOption
     return true
   if (opencodeOrigin.test(input)) return true
   if (input === mayaUiOrigin) return true
+  if (input === mayaUiPagesOrigin) return true
   return opts?.cors?.includes(input) ?? false
 }
 
