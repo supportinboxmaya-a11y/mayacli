@@ -25,7 +25,7 @@ jobs:
           VITE_API_URL: https://api.dev.opencode.ai
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@3.6.0
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
