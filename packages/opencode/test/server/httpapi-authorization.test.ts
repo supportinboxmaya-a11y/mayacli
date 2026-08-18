@@ -60,10 +60,10 @@ const noAuthLayer = ServerAuth.Config.configLayer({ password: Option.none(), use
 const secretLayer = ServerAuth.Config.configLayer({ password: Option.some("secret"), username: "opencode" })
 const kitSecretLayer = ServerAuth.Config.configLayer({ password: Option.some("secret"), username: "kit" })
 
-const it = testEffect(apiLayer.pipe(Layer.provide(noAuthLayer)))
-const itSecret = testEffect(apiLayer.pipe(Layer.provide(secretLayer)))
-const itKitSecret = testEffect(apiLayer.pipe(Layer.provide(kitSecretLayer)))
-const itV2Secret = testEffect(v2ApiLayer.pipe(Layer.provide(secretLayer)))
+const it = testEffect(apiLayer.pipe(Layer.provide(noAuthLayer)) as unknown as Layer.Layer<any, any, never>)
+const itSecret = testEffect(apiLayer.pipe(Layer.provide(secretLayer)) as unknown as Layer.Layer<any, any, never>)
+const itKitSecret = testEffect(apiLayer.pipe(Layer.provide(kitSecretLayer)) as unknown as Layer.Layer<any, any, never>)
+const itV2Secret = testEffect(v2ApiLayer.pipe(Layer.provide(secretLayer)) as unknown as Layer.Layer<any, any, never>)
 
 const basic = (username: string, password: string) => ServerAuth.header({ username, password }) ?? ""
 

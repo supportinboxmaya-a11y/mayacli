@@ -46,7 +46,7 @@ const apiLayer = HttpRouter.serve(
   ),
   Layer.provide(ServerAuth.Config.configLayer({ password: Option.none(), username: "opencode" })),
 )
-const it = testEffect(apiLayer)
+const it = testEffect(apiLayer as unknown as Layer.Layer<any, any, never>)
 
 describe("control-plane HttpApi", () => {
   it.live("moves a session through the root control-plane route", () =>

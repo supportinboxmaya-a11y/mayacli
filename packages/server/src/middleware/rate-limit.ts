@@ -1,4 +1,4 @@
-import { Effect, Layer, Ref } from "effect"
+import { Effect, Layer, Option, Ref } from "effect"
 import { RateLimit } from "@opencode-ai/protocol/middleware/rate-limit"
 import { HttpServerRequest } from "effect/unstable/http"
 import { TooManyRequestsError } from "@opencode-ai/protocol/errors"
@@ -16,7 +16,7 @@ export const rateLimitLayer = (limit = 20, windowMs = 60_000) =>
       return RateLimit.of((effect) =>
         Effect.gen(function* () {
           const request = yield* HttpServerRequest.HttpServerRequest
-          const key = request.remoteAddress ?? "unknown"
+          const key = request.remoteAddress.pipe(Option.getOrElse(() => "unknown"))
           const now = Date.now()
           yield* Ref.update(buckets, (map) => {
             const next = new Map(map)

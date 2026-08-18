@@ -1,6 +1,7 @@
 import { User } from "@opencode-ai/schema/user"
 import { HttpApiMiddleware } from "effect/unstable/httpapi"
 import { UnauthorizedError } from "../errors"
+import { CurrentUser } from "@opencode-ai/schema/user"
 
 // The `CurrentUser` context key lives in the schema package so both core
 // services and protocol/server middleware can read it without a core→protocol
@@ -12,7 +13,10 @@ export { CurrentUser } from "@opencode-ai/schema/user"
  * the current user. The server layer attaches the user's ID to the request
  * context via `CurrentUser`; handlers read it to scope data.
  */
-export class UserAuth extends HttpApiMiddleware.Service<UserAuth>()("@opencode/HttpApiUserAuth", {
+export class UserAuth extends HttpApiMiddleware.Service<
+  UserAuth,
+  { provides: CurrentUser }
+>()("@opencode/HttpApiUserAuth", {
   error: UnauthorizedError,
 }) {}
 

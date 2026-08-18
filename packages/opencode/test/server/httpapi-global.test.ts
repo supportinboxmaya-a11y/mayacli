@@ -40,7 +40,7 @@ const apiLayer = HttpRouter.serve(
   ),
   Layer.provide(ServerAuth.Config.configLayer({ password: Option.none(), username: "opencode" })),
 )
-const it = testEffect(apiLayer)
+const it = testEffect(apiLayer as unknown as Layer.Layer<any, any, never>)
 
 describe("global HttpApi", () => {
   it.live("upgrades to latest when the request body is omitted", () =>

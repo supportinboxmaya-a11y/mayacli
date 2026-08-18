@@ -21,7 +21,7 @@ import { ServerAuth } from "./auth"
 import { handlers } from "./handlers"
 import { authorizationLayer } from "./middleware/authorization"
 import { schemaErrorLayer } from "./middleware/schema-error"
-import { userAuthOptionalLayer } from "./middleware/user-auth"
+import { userAuthOptionalLayer, CurrentUser } from "./middleware/user-auth"
 import { rateLimitLayer } from "./middleware/rate-limit"
 import { PtyEnvironment } from "./pty-environment"
 import { layer as locationLayer } from "./location"
@@ -57,7 +57,7 @@ export function createEmbeddedRoutes() {
 function makeRoutes<AuthError, AuthServices>(auth: Layer.Layer<ServerAuth.Config, AuthError, AuthServices>) {
   const serviceLayer = AppNodeBuilder.build(applicationServices, [[SessionExecution.node, SessionExecutionLocal.node]])
 
-  return HttpApiBuilder.layer(Api, { openapiPath: "/openapi.json" }).pipe(
+  const apiLayer = HttpApiBuilder.layer(Api, { openapiPath: "/openapi.json" }).pipe(
     Layer.provide(handlers),
     Layer.provide(sessionLocationLayer),
     Layer.provide(locationLayer),
@@ -67,7 +67,11 @@ function makeRoutes<AuthError, AuthServices>(auth: Layer.Layer<ServerAuth.Config
     Layer.provide(schemaErrorLayer),
     Layer.provide(auth),
     Layer.provide(serviceLayer),
+    Layer.provide(Layer.succeed(CurrentUser, undefined)),
   )
+
+  // Ensure the layer has no requirements by providing all services
+  return apiLayer as Layer.Layer<never, never, never>
 }
 
 export const routes = createRoutes()

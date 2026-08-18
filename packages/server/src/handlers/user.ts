@@ -88,14 +88,18 @@ export const UserHandler = HttpApiBuilder.group(Api, "server.user", (handlers) =
         "user.profile",
         Effect.fn(function* (ctx) {
           const user = yield* requireUser
-          return yield* users.updateProfile(user.id, ctx.payload)
+          return yield* users.updateProfile(user.id, ctx.payload).pipe(
+            Effect.catchTag("User.NotFound", () => new UnauthorizedError({ message: "User not found" })),
+          )
         }),
       )
       .handle(
         "user.settings",
         Effect.fn(function* (ctx) {
           const user = yield* requireUser
-          return yield* users.updateSettings(user.id, ctx.payload)
+          return yield* users.updateSettings(user.id, ctx.payload).pipe(
+            Effect.catchTag("User.NotFound", () => new UnauthorizedError({ message: "User not found" })),
+          )
         }),
       )
       .handle(

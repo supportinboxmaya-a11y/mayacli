@@ -16,7 +16,7 @@ import type { LocationServices } from "../location"
 
 export class SessionLocationMiddleware extends HttpApiMiddleware.Service<
   SessionLocationMiddleware,
-  { provides: LocationServices }
+  { provides: LocationServices; requires: CurrentUser }
 >()("@opencode/HttpApiSessionLocation", {
   error: [InvalidRequestError, SessionNotFoundError],
 }) {}
