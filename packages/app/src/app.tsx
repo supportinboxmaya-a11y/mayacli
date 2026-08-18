@@ -580,13 +580,13 @@ export function AppInterface(props: {
             <Show when={useSettings().general.newLayoutDesigns().toString()} keyed>
               <Dynamic
                 component={props.router ?? Router}
-                root={(routerProps) => (
+                root={(routerProps: BaseRouterProps) => (
                   <TabsProvider>
                     <PermissionProvider>
                       <NotificationProvider>
                         <ServerShell>
-                          <Show when={useSettings().general.newLayoutDesigns()} fallback={routerProps.children}>
-                            <NewAppLayout serverScoped={props.serverScoped}>{routerProps.children}</NewAppLayout>
+                          <Show when={useSettings().general.newLayoutDesigns()} fallback={routerProps.children as JSX.Element}>
+                            <NewAppLayout serverScoped={props.serverScoped}>{routerProps.children as JSX.Element}</NewAppLayout>
                           </Show>
                         </ServerShell>
                       </NotificationProvider>
